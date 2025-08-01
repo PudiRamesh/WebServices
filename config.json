@@ -1,0 +1,54 @@
+{
+  "audit_settings": {
+    "database_path": "ppt_audit.db",
+    "watch_directory": ".",
+    "recursive_monitoring": true,
+    "supported_extensions": [".ppt", ".pptx", ".pptm", ".ppsx", ".ppsm"],
+    "log_level": "INFO",
+    "log_file": "ppt_audit.log"
+  },
+  "monitoring": {
+    "enable_file_watching": true,
+    "scan_interval_minutes": 60,
+    "backup_database": true,
+    "backup_retention_days": 30,
+    "max_file_size_mb": 100,
+    "ignore_temp_files": true,
+    "temp_file_patterns": ["~$*", "*.tmp", "*.temp"]
+  },
+  "security": {
+    "hash_algorithm": "sha256",
+    "encrypt_metadata": false,
+    "require_user_authentication": false,
+    "audit_admin_actions": true
+  },
+  "reporting": {
+    "default_export_format": "html",
+    "max_events_per_report": 10000,
+    "include_metadata_in_reports": true,
+    "auto_generate_daily_reports": false,
+    "report_output_directory": "./reports",
+    "email_notifications": {
+      "enabled": false,
+      "smtp_server": "",
+      "smtp_port": 587,
+      "sender_email": "",
+      "recipient_emails": [],
+      "send_daily_summary": false,
+      "send_on_critical_events": false
+    }
+  },
+  "performance": {
+    "database_vacuum_frequency_days": 7,
+    "max_database_size_mb": 500,
+    "batch_size_for_large_operations": 1000,
+    "enable_compression": true
+  },
+  "alerts": {
+    "large_file_threshold_mb": 50,
+    "suspicious_activity_threshold": 100,
+    "multiple_user_access_alert": true,
+    "rapid_changes_alert": true,
+    "rapid_changes_threshold_minutes": 5
+  }
+}
