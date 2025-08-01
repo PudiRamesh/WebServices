@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Trail Best Practices in Angular</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .slide {
+            background: white;
+            margin: 20px 0;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 500px;
+            page-break-after: always;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+        }
+        h2 {
+            color: #34495e;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #2980b9;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+        }
+        .highlight {
+            background: #f39c12;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .bullet-point {
+            display: flex;
+            align-items: flex-start;
+            margin: 10px 0;
+        }
+        .bullet {
+            color: #3498db;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+        }
+        .architecture-diagram {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .flow-step {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 25px;
+            position: relative;
+        }
+        .flow-step::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            color: #3498db;
+            font-weight: bold;
+        }
+        .flow-step:last-child::after {
+            content: '';
+        }
+        .warning {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .success {
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .info {
+            background: #3498db;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- Slide 1: Title Slide -->
+        <div class="slide">
+            <h1>Audit Trail Best Practices in Angular</h1>
+            <div style="text-align: center; margin-top: 50px;">
+                <h3 style="color: #7f8c8d;">Comprehensive Guide to Implementing Robust Audit Logging</h3>
+                <div style="margin-top: 40px; font-size: 1.2em; color: #2c3e50;">
+                    <p><strong>Topics Covered:</strong></p>
+                    <div class="bullet-point"><span class="bullet">•</span> Audit Trail Fundamentals</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Angular Implementation Strategies</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Security & Compliance</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Performance Optimization</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Real-world Examples</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is an Audit Trail? -->
+        <div class="slide">
+            <h2>What is an Audit Trail?</h2>
+            <div class="info">
+                An audit trail is a chronological record of all user activities, system events, and data changes that occur within an application.
+            </div>
+            
+            <h3>Key Components:</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📅 Timestamp</h4>
+                    <p>When the action occurred (UTC recommended)</p>
+                </div>
+                <div class="feature-card">
+                    <h4>👤 User Identity</h4>
+                    <p>Who performed the action</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎯 Action Type</h4>
+                    <p>What action was performed</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📍 Resource</h4>
+                    <p>What was affected</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Before/After</h4>
+                    <p>State changes (if applicable)</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🌐 Context</h4>
+                    <p>IP address, session info, etc.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Why Audit Trails Matter -->
+        <div class="slide">
+            <h2>Why Audit Trails Matter in Angular Applications</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔒 Security</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Detect unauthorized access</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Track suspicious activities</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Forensic analysis</div>
+                </div>
+                <div class="feature-card">
+                    <h4>📋 Compliance</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> GDPR, HIPAA, SOX requirements</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Regulatory reporting</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Legal evidence</div>
+                </div>
+                <div class="feature-card">
+                    <h4>🐛 Debugging</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Reproduce issues</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Track user journeys</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Performance analysis</div>
+                </div>
+                <div class="feature-card">
+                    <h4>📈 Analytics</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> User behavior patterns</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Feature usage statistics</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Business intelligence</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Angular Audit Service Architecture -->
+        <div class="slide">
+            <h2>Angular Audit Service Architecture</h2>
+            
+            <div class="architecture-diagram">
+                <h3>Recommended Architecture Flow</h3>
+                <div style="margin: 30px 0;">
+                    <div class="flow-step">User Action</div>
+                    <div class="flow-step">Interceptor</div>
+                    <div class="flow-step">Audit Service</div>
+                    <div class="flow-step">Queue/Buffer</div>
+                    <div class="flow-step">Backend API</div>
+                </div>
+            </div>
+
+            <div class="code-block">
+// Core Audit Service Structure
+@Injectable({
+  providedIn: 'root'
+})
+export class AuditService {
+  private auditQueue: AuditEntry[] = [];
+  private readonly batchSize = 10;
+  private readonly flushInterval = 5000; // 5 seconds
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {
+    this.startPeriodicFlush();
+  }
+
+  logAction(action: AuditAction): void {
+    const entry: AuditEntry = {
+      id: this.generateId(),
+      timestamp: new Date().toISOString(),
+      userId: this.authService.getCurrentUserId(),
+      action: action.type,
+      resource: action.resource,
+      details: action.details,
+      ipAddress: this.getClientIP(),
+      userAgent: navigator.userAgent
+    };
+    
+    this.auditQueue.push(entry);
+    this.checkFlushConditions();
+  }
+}</div>
+        </div>
+
+        <!-- Slide 5: Implementation - Audit Models -->
+        <div class="slide">
+            <h2>Implementation: Audit Models & Interfaces</h2>
+            
+            <div class="code-block">
+// audit.models.ts
+export interface AuditEntry {
+  id: string;
+  timestamp: string;
+  userId: string;
+  sessionId?: string;
+  action: AuditActionType;
+  resource: string;
+  resourceId?: string;
+  oldValue?: any;
+  newValue?: any;
+  details?: Record&lt;string, any&gt;;
+  ipAddress?: string;
+  userAgent?: string;
+  location?: string;
+  success: boolean;
+  errorMessage?: string;
+}
+
+export enum AuditActionType {
+  CREATE = 'CREATE',
+  READ = 'READ',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+  LOGIN = 'LOGIN',
+  LOGOUT = 'LOGOUT',
+  EXPORT = 'EXPORT',
+  PRINT = 'PRINT',
+  SEARCH = 'SEARCH',
+  DOWNLOAD = 'DOWNLOAD'
+}
+
+export interface AuditAction {
+  type: AuditActionType;
+  resource: string;
+  resourceId?: string;
+  details?: Record&lt;string, any&gt;;
+  oldValue?: any;
+  newValue?: any;
+}</div>
+        </div>
+
+        <!-- Slide 6: HTTP Interceptor for Automatic Logging -->
+        <div class="slide">
+            <h2>HTTP Interceptor for Automatic Logging</h2>
+            
+            <div class="code-block">
+// audit-interceptor.ts
+@Injectable()
+export class AuditInterceptor implements HttpInterceptor {
+  
+  constructor(private auditService: AuditService) {}
+
+  intercept(req: HttpRequest&lt;any&gt;, next: HttpHandler): Observable&lt;HttpEvent&lt;any&gt;&gt; {
+    const startTime = Date.now();
+    
+    return next.handle(req).pipe(
+      tap({
+        next: (event) =&gt; {
+          if (event instanceof HttpResponse) {
+            this.logHttpSuccess(req, event, startTime);
+          }
+        },
+        error: (error) =&gt; {
+          this.logHttpError(req, error, startTime);
+        }
+      })
+    );
+  }
+
+  private logHttpSuccess(req: HttpRequest&lt;any&gt;, res: HttpResponse&lt;any&gt;, startTime: number): void {
+    if (this.shouldAudit(req)) {
+      const action: AuditAction = {
+        type: this.mapHttpMethodToAction(req.method),
+        resource: this.extractResource(req.url),
+        details: {
+          method: req.method,
+          url: req.url,
+          statusCode: res.status,
+          responseTime: Date.now() - startTime,
+          requestBody: this.sanitizeBody(req.body)
+        }
+      };
+      
+      this.auditService.logAction(action);
+    }
+  }
+}</div>
+        </div>
+
+        <!-- Slide 7: Component-Level Audit Logging -->
+        <div class="slide">
+            <h2>Component-Level Audit Logging</h2>
+            
+            <div class="code-block">
+// user-profile.component.ts
+@Component({
+  selector: 'app-user-profile',
+  templateUrl: './user-profile.component.html'
+})
+export class UserProfileComponent implements OnInit {
+  
+  constructor(private auditService: AuditService) {}
+
+  ngOnInit(): void {
+    // Log page view
+    this.auditService.logAction({
+      type: AuditActionType.READ,
+      resource: 'user-profile',
+      details: { page: 'profile-view' }
+    });
+  }
+
+  updateProfile(profileData: UserProfile): void {
+    const oldValue = { ...this.currentProfile };
+    
+    this.userService.updateProfile(profileData).subscribe({
+      next: (updatedProfile) =&gt; {
+        // Log successful update
+        this.auditService.logAction({
+          type: AuditActionType.UPDATE,
+          resource: 'user-profile',
+          resourceId: updatedProfile.id,
+          oldValue: oldValue,
+          newValue: updatedProfile,
+          details: { 
+            fieldsChanged: this.getChangedFields(oldValue, updatedProfile)
+          }
+        });
+      },
+      error: (error) =&gt; {
+        // Log failed update
+        this.auditService.logAction({
+          type: AuditActionType.UPDATE,
+          resource: 'user-profile',
+          details: { 
+            error: error.message,
+            success: false
+          }
+        });
+      }
+    });
+  }
+}</div>
+        </div>
+
+        <!-- Slide 8: Directive for Automatic UI Tracking -->
+        <div class="slide">
+            <h2>Custom Directive for Automatic UI Tracking</h2>
+            
+            <div class="code-block">
+// audit-track.directive.ts
+@Directive({
+  selector: '[auditTrack]'
+})
+export class AuditTrackDirective implements OnInit {
+  @Input() auditTrack: string = '';
+  @Input() auditResource: string = '';
+  @Input() auditDetails: Record&lt;string, any&gt; = {};
+
+  constructor(
+    private el: ElementRef,
+    private auditService: AuditService
+  ) {}
+
+  @HostListener('click', ['$event'])
+  onClick(event: Event): void {
+    const action: AuditAction = {
+      type: AuditActionType.READ,
+      resource: this.auditResource || 'ui-interaction',
+      details: {
+        element: this.auditTrack,
+        elementType: this.el.nativeElement.tagName.toLowerCase(),
+        timestamp: new Date().toISOString(),
+        ...this.auditDetails
+      }
+    };
+    
+    this.auditService.logAction(action);
+  }
+}
+
+// Usage in template:
+// &lt;button auditTrack="export-users" 
+//         auditResource="user-management"
+//         [auditDetails]="{format: 'csv'}"&gt;
+//   Export Users
+// &lt;/button&gt;</div>
+        </div>
+
+        <!-- Slide 9: Security Best Practices -->
+        <div class="slide">
+            <h2>Security Best Practices</h2>
+            
+            <div class="warning">
+                <strong>⚠️ Critical Security Considerations</strong>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔐 Data Sanitization</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Never log passwords or sensitive data</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Mask PII (personally identifiable information)</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Hash sensitive identifiers</div>
+                </div>
+                <div class="feature-card">
+                    <h4>🛡️ Access Control</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Restrict audit log access</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Role-based permissions</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Audit the auditors</div>
+                </div>
+                <div class="feature-card">
+                    <h4>🔒 Encryption</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Encrypt audit data in transit</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Encrypt stored audit logs</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Use HTTPS for all communications</div>
+                </div>
+                <div class="feature-card">
+                    <h4>📝 Integrity</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Prevent audit log tampering</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Use checksums or digital signatures</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Immutable storage solutions</div>
+                </div>
+            </div>
+
+            <div class="code-block">
+// Data sanitization example
+private sanitizeAuditData(data: any): any {
+  const sensitiveFields = ['password', 'ssn', 'creditCard', 'token'];
+  
+  return this.deepClone(data, (key, value) =&gt; {
+    if (sensitiveFields.includes(key.toLowerCase())) {
+      return '[REDACTED]';
+    }
+    if (typeof value === 'string' && this.looksLikeEmail(value)) {
+      return this.maskEmail(value);
+    }
+    return value;
+  });
+}</div>
+        </div>
+
+        <!-- Slide 10: Performance Optimization -->
+        <div class="slide">
+            <h2>Performance Optimization Strategies</h2>
+            
+            <h3>🚀 Batching & Queuing</h3>
+            <div class="code-block">
+// Optimized batching implementation
+private processBatch(): void {
+  if (this.auditQueue.length === 0) return;
+  
+  const batch = this.auditQueue.splice(0, this.batchSize);
+  const compressedBatch = this.compressAuditData(batch);
+  
+  this.http.post('/api/audit/batch', compressedBatch, {
+    headers: { 'Content-Encoding': 'gzip' }
+  }).subscribe({
+    next: () =&gt; console.log(`Sent ${batch.length} audit entries`),
+    error: (error) =&gt; {
+      // Re-queue failed entries
+      this.auditQueue.unshift(...batch);
+      console.error('Failed to send audit batch:', error);
+    }
+  });
+}</div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📦 Compression</h4>
+                    <p>Use gzip compression for large audit payloads</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⏱️ Debouncing</h4>
+                    <p>Debounce rapid successive actions</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎯 Selective Logging</h4>
+                    <p>Only log business-critical events</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔄 Background Processing</h4>
+                    <p>Use Web Workers for heavy processing</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Testing Audit Functionality -->
+        <div class="slide">
+            <h2>Testing Audit Functionality</h2>
+            
+            <div class="code-block">
+// audit.service.spec.ts
+describe('AuditService', () =&gt; {
+  let service: AuditService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() =&gt; {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [AuditService]
+    });
+    service = TestBed.inject(AuditService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  it('should batch audit entries correctly', fakeAsync(() =&gt; {
+    // Arrange
+    const actions = Array.from({length: 15}, (_, i) =&gt; ({
+      type: AuditActionType.READ,
+      resource: `resource-${i}`
+    }));
+
+    // Act
+    actions.forEach(action =&gt; service.logAction(action));
+    tick(6000); // Trigger flush
+
+    // Assert
+    const req = httpMock.expectOne('/api/audit/batch');
+    expect(req.request.body.length).toBe(10); // First batch
+    req.flush({});
+
+    tick(6000); // Second flush
+    const req2 = httpMock.expectOne('/api/audit/batch');
+    expect(req2.request.body.length).toBe(5); // Remaining entries
+  }));
+
+  it('should handle failed audit submissions', () =&gt; {
+    // Test retry logic and error handling
+  });
+});</div>
+        </div>
+
+        <!-- Slide 12: Compliance & Reporting -->
+        <div class="slide">
+            <h2>Compliance & Reporting</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📋 GDPR Compliance</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Right to be forgotten</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Data portability</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Consent tracking</div>
+                </div>
+                <div class="feature-card">
+                    <h4>🏥 HIPAA Requirements</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Access logs for PHI</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Minimum necessary principle</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Breach notification</div>
+                </div>
+                <div class="feature-card">
+                    <h4>💼 SOX Compliance</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Financial data access</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Change control</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Segregation of duties</div>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Reporting Features</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Automated compliance reports</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Real-time dashboards</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Anomaly detection</div>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>✅ Best Practice:</strong> Implement automated compliance reporting to reduce manual effort and ensure consistency.
+            </div>
+        </div>
+
+        <!-- Slide 13: Common Pitfalls & Solutions -->
+        <div class="slide">
+            <h2>Common Pitfalls & Solutions</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h3 style="color: #e74c3c;">❌ Common Pitfalls</h3>
+                    <div class="feature-card" style="border-left-color: #e74c3c; background: #fadbd8;">
+                        <h4>Over-logging</h4>
+                        <p>Logging every single user action creates noise and performance issues</p>
+                    </div>
+                    <div class="feature-card" style="border-left-color: #e74c3c; background: #fadbd8;">
+                        <h4>Inconsistent Format</h4>
+                        <p>Different log formats make analysis difficult</p>
+                    </div>
+                    <div class="feature-card" style="border-left-color: #e74c3c; background: #fadbd8;">
+                        <h4>Missing Context</h4>
+                        <p>Insufficient information to understand actions</p>
+                    </div>
+                    <div class="feature-card" style="border-left-color: #e74c3c; background: #fadbd8;">
+                        <h4>Security Oversights</h4>
+                        <p>Logging sensitive data or inadequate access controls</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="color: #27ae60;">✅ Solutions</h3>
+                    <div class="feature-card" style="border-left-color: #27ae60; background: #d5f4e6;">
+                        <h4>Strategic Logging</h4>
+                        <p>Focus on business-critical events and user journeys</p>
+                    </div>
+                    <div class="feature-card" style="border-left-color: #27ae60; background: #d5f4e6;">
+                        <h4>Standardized Schema</h4>
+                        <p>Use consistent audit entry structure across the application</p>
+                    </div>
+                    <div class="feature-card" style="border-left-color: #27ae60; background: #d5f4e6;">
+                        <h4>Rich Metadata</h4>
+                        <p>Include session, user context, and business context</p>
+                    </div>
+                    <div class="feature-card" style="border-left-color: #27ae60; background: #d5f4e6;">
+                        <h4>Security by Design</h4>
+                        <p>Implement data sanitization and access controls from the start</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Real-world Example -->
+        <div class="slide">
+            <h2>Real-world Example: E-commerce Application</h2>
+            
+            <div class="code-block">
+// order.component.ts - Complete audit implementation
+export class OrderComponent {
+  
+  async placeOrder(orderData: OrderRequest): Promise&lt;void&gt; {
+    const auditContext = {
+      orderId: this.generateOrderId(),
+      customerId: this.authService.getCurrentUserId(),
+      totalAmount: orderData.total,
+      itemCount: orderData.items.length
+    };
+
+    try {
+      // Log order initiation
+      this.auditService.logAction({
+        type: AuditActionType.CREATE,
+        resource: 'order',
+        resourceId: auditContext.orderId,
+        details: {
+          ...auditContext,
+          stage: 'initiated',
+          paymentMethod: orderData.paymentMethod
+        }
+      });
+
+      const order = await this.orderService.createOrder(orderData).toPromise();
+      
+      // Log successful order creation
+      this.auditService.logAction({
+        type: AuditActionType.CREATE,
+        resource: 'order',
+        resourceId: order.id,
+        newValue: order,
+        details: {
+          ...auditContext,
+          stage: 'completed',
+          confirmationNumber: order.confirmationNumber
+        }
+      });
+
+    } catch (error) {
+      // Log order failure
+      this.auditService.logAction({
+        type: AuditActionType.CREATE,
+        resource: 'order',
+        details: {
+          ...auditContext,
+          stage: 'failed',
+          error: error.message,
+          success: false
+        }
+      });
+      throw error;
+    }
+  }
+}</div>
+        </div>
+
+        <!-- Slide 15: Monitoring & Alerting -->
+        <div class="slide">
+            <h2>Monitoring & Alerting</h2>
+            
+            <div class="architecture-diagram">
+                <h3>Audit Monitoring Architecture</h3>
+                <div style="margin: 30px 0;">
+                    <div class="flow-step">Audit Events</div>
+                    <div class="flow-step">Stream Processing</div>
+                    <div class="flow-step">Anomaly Detection</div>
+                    <div class="flow-step">Alert System</div>
+                    <div class="flow-step">Dashboard</div>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🚨 Security Alerts</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Multiple failed login attempts</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Unusual access patterns</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Privilege escalation attempts</div>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Performance Metrics</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Audit log volume trends</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Processing latency</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Storage utilization</div>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 Business Intelligence</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> User activity patterns</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Feature usage analytics</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Compliance reporting</div>
+                </div>
+                <div class="feature-card">
+                    <h4>⚠️ System Health</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Audit service availability</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Queue depth monitoring</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Error rate tracking</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Future Considerations -->
+        <div class="slide">
+            <h2>Future Considerations & Advanced Topics</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🤖 Machine Learning</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Behavioral anomaly detection</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Predictive security analytics</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Automated threat response</div>
+                </div>
+                <div class="feature-card">
+                    <h4>🔗 Blockchain</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Immutable audit trails</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Decentralized verification</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Smart contract auditing</div>
+                </div>
+                <div class="feature-card">
+                    <h4>☁️ Cloud-Native</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Serverless audit processing</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Microservices architecture</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Container orchestration</div>
+                </div>
+                <div class="feature-card">
+                    <h4>🌐 Edge Computing</h4>
+                    <div class="bullet-point"><span class="bullet">•</span> Local audit caching</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Offline capability</div>
+                    <div class="bullet-point"><span class="bullet">•</span> Edge analytics</div>
+                </div>
+            </div>
+
+            <div class="info">
+                <strong>💡 Pro Tip:</strong> Consider implementing a plugin architecture for audit handlers to easily extend functionality as requirements evolve.
+            </div>
+        </div>
+
+        <!-- Slide 17: Implementation Checklist -->
+        <div class="slide">
+            <h2>Implementation Checklist</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <h3>🏗️ Development Phase</h3>
+                    <div class="bullet-point"><span class="bullet">☐</span> Define audit requirements</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Design audit data schema</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Implement core audit service</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Create HTTP interceptor</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Add component-level logging</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Implement data sanitization</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Add performance optimizations</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Create automated tests</div>
+                </div>
+                
+                <div>
+                    <h3>🚀 Production Phase</h3>
+                    <div class="bullet-point"><span class="bullet">☐</span> Set up monitoring dashboards</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Configure alerting rules</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Implement log rotation</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Set up backup procedures</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Create compliance reports</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Train support team</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Document procedures</div>
+                    <div class="bullet-point"><span class="bullet">☐</span> Schedule regular reviews</div>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>🎯 Success Metrics:</strong> Track implementation progress and measure the effectiveness of your audit trail system through completion rates, compliance scores, and incident detection times.
+            </div>
+        </div>
+
+        <!-- Slide 18: Conclusion -->
+        <div class="slide">
+            <h1>Conclusion</h1>
+            
+            <div style="text-align: center; margin: 40px 0;">
+                <h3 style="color: #2c3e50;">Key Takeaways</h3>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🎯 Strategic Implementation</h4>
+                    <p>Focus on business-critical events and user journeys rather than logging everything</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔒 Security First</h4>
+                    <p>Always prioritize data protection and access control in your audit design</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚡ Performance Matters</h4>
+                    <p>Use batching, compression, and selective logging to maintain application performance</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Compliance Ready</h4>
+                    <p>Design your audit system to meet current and future regulatory requirements</p>
+                </div>
+            </div>
+
+            <div class="info" style="text-align: center; margin-top: 40px;">
+                <h3>Remember: A well-implemented audit trail is an investment in security, compliance, and operational excellence.</h3>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px; color: #7f8c8d;">
+                <h4>Questions & Discussion</h4>
+                <p>Thank you for your attention!</p>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        // Simple navigation for presentation
+        document.addEventListener('keydown', function(e) {
+            const slides = document.querySelectorAll('.slide');
+            let currentSlide = 0;
+            
+            // Find current visible slide
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top >= 0 && rect.top < window.innerHeight / 2) {
+                    currentSlide = index;
+                }
+            });
+            
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                if (currentSlide < slides.length - 1) {
+                    slides[currentSlide + 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                if (currentSlide > 0) {
+                    slides[currentSlide - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
