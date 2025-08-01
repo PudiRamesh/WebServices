@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - PowerPoint Audit Trail{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-chart-bar me-2"></i>Audit Reports
+        </h1>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>Filters
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="file-path-filter" class="form-label">File Path</label>
+                        <input type="text" class="form-control" id="file-path-filter" placeholder="Enter file path...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="action-filter" class="form-label">Action</label>
+                        <select class="form-select" id="action-filter">
+                            <option value="">All Actions</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="start-date-filter" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="start-date-filter">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="end-date-filter" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="end-date-filter">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button type="button" class="btn btn-primary" onclick="applyFilters()">
+                                <i class="fas fa-search me-1"></i>Apply
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>Audit Events
+                </h5>
+                <div class="d-flex align-items-center">
+                    <span class="me-3" id="results-count">0 results</span>
+                    <select class="form-select form-select-sm" id="per-page-select" style="width: auto;">
+                        <option value="10">10 per page</option>
+                        <option value="20" selected>20 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>File</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>Size</th>
+                                <th>Slides</th>
+                                <th>Change Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table">
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav aria-label="Events pagination">
+                    <ul class="pagination justify-content-center" id="pagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPage = 1;
+let currentFilters = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadActions();
+    loadEvents();
+    
+    // Event listeners
+    document.getElementById('per-page-select').addEventListener('change', function() {
+        currentPage = 1;
+        loadEvents();
+    });
+});
+
+function loadActions() {
+    fetch('/api/actions')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('action-filter');
+            data.actions.forEach(action => {
+                const option = document.createElement('option');
+                option.value = action;
+                option.textContent = action;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error loading actions:', error));
+}
+
+function applyFilters() {
+    currentPage = 1;
+    currentFilters = {
+        file_path: document.getElementById('file-path-filter').value,
+        action: document.getElementById('action-filter').value,
+        start_date: document.getElementById('start-date-filter').value,
+        end_date: document.getElementById('end-date-filter').value
+    };
+    loadEvents();
+}
+
+function clearFilters() {
+    document.getElementById('file-path-filter').value = '';
+    document.getElementById('action-filter').value = '';
+    document.getElementById('start-date-filter').value = '';
+    document.getElementById('end-date-filter').value = '';
+    currentFilters = {};
+    currentPage = 1;
+    loadEvents();
+}
+
+function loadEvents() {
+    const perPage = document.getElementById('per-page-select').value;
+    const params = new URLSearchParams({
+        page: currentPage,
+        per_page: perPage,
+        ...currentFilters
+    });
+    
+    fetch(`/api/events?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            updateEventsTable(data.events);
+            updatePagination(data);
+            document.getElementById('results-count').textContent = `${data.total_count} results`;
+        })
+        .catch(error => {
+            console.error('Error loading events:', error);
+            document.getElementById('events-table').innerHTML = 
+                '<tr><td colspan="7" class="text-center text-danger">Error loading events</td></tr>';
+        });
+}
+
+function updateEventsTable(events) {
+    const tbody = document.getElementById('events-table');
+    
+    if (events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No events found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = events.map(event => `
+        <tr>
+            <td>${formatDateTime(event.timestamp)}</td>
+            <td>
+                <a href="/file/${encodeURIComponent(event.file_path)}" class="text-decoration-none">
+                    ${event.file_path.split('/').pop()}
+                </a>
+                <br>
+                <small class="text-muted">${event.file_path}</small>
+            </td>
+            <td>
+                <span class="badge bg-${getActionColor(event.action)}">${event.action}</span>
+            </td>
+            <td>${event.details || '-'}</td>
+            <td>${formatFileSize(event.file_size)}</td>
+            <td>${event.slide_count || '-'}</td>
+            <td>
+                ${event.change_type ? `<span class="badge bg-info">${event.change_type}</span>` : '-'}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updatePagination(data) {
+    const pagination = document.getElementById('pagination');
+    const totalPages = data.total_pages;
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let paginationHTML = '';
+    
+    // Previous button
+    paginationHTML += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${currentPage - 1})">Previous</a>
+        </li>
+    `;
+    
+    // Page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+    
+    if (startPage > 1) {
+        paginationHTML += '<li class="page-item"><a class="page-link" href="#" onclick="goToPage(1)">1</a></li>';
+        if (startPage > 2) {
+            paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>
+            </li>
+        `;
+    }
+    
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="goToPage(${totalPages})">${totalPages}</a></li>`;
+    }
+    
+    // Next button
+    paginationHTML += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${currentPage + 1})">Next</a>
+        </li>
+    `;
+    
+    pagination.innerHTML = paginationHTML;
+}
+
+function goToPage(page) {
+    currentPage = page;
+    loadEvents();
+}
+
+function formatDateTime(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+}
+
+function formatFileSize(bytes) {
+    if (!bytes) return '-';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function getActionColor(action) {
+    const colors = {
+        'file_created': 'success',
+        'file_modified': 'warning',
+        'file_deleted': 'danger',
+        'initial_scan': 'info'
+    };
+    return colors[action] || 'secondary';
+}
+</script>
+{% endblock %}
