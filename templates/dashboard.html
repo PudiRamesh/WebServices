@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PowerPoint Audit Trail{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </h1>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title" id="total-files">-</h4>
+                        <p class="card-text">Files Monitored</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-folder fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title" id="total-events">-</h4>
+                        <p class="card-text">Total Events</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-list fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title" id="events-today">-</h4>
+                        <p class="card-text">Events Today</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-day fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title" id="active-files">-</h4>
+                        <p class="card-text">Active Files</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-edit fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Recent Activity (7 Days)
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="activityChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>File Types Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="fileTypesChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Events -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-history me-2"></i>Recent Events
+                </h5>
+                <a href="{{ url_for('reports') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-external-link-alt me-1"></i>View All
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>File</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>Size</th>
+                                <th>Slides</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-events">
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+    
+    // Refresh data every 30 seconds
+    setInterval(loadDashboardData, 30000);
+});
+
+function loadDashboardData() {
+    // Load statistics
+    fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-files').textContent = data.total_files;
+            document.getElementById('total-events').textContent = data.total_events;
+            document.getElementById('events-today').textContent = data.events_today;
+            document.getElementById('active-files').textContent = Object.keys(data.recent_activity).length;
+            
+            // Update charts
+            updateActivityChart(data.recent_activity);
+            updateFileTypesChart(data.file_types);
+        })
+        .catch(error => console.error('Error loading stats:', error));
+    
+    // Load recent events
+    fetch('/api/events?per_page=10')
+        .then(response => response.json())
+        .then(data => {
+            updateRecentEvents(data.events);
+        })
+        .catch(error => console.error('Error loading events:', error));
+}
+
+function updateActivityChart(activityData) {
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    
+    // Generate last 7 days
+    const dates = [];
+    const counts = [];
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        dates.push(dateStr);
+        counts.push(activityData[dateStr] || 0);
+    }
+    
+    if (window.activityChart) {
+        window.activityChart.destroy();
+    }
+    
+    window.activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Events',
+                data: counts,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function updateFileTypesChart(fileTypesData) {
+    const ctx = document.getElementById('fileTypesChart').getContext('2d');
+    
+    const labels = Object.keys(fileTypesData);
+    const data = Object.values(fileTypesData);
+    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'];
+    
+    if (window.fileTypesChart) {
+        window.fileTypesChart.destroy();
+    }
+    
+    window.fileTypesChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, labels.length)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function updateRecentEvents(events) {
+    const tbody = document.getElementById('recent-events');
+    
+    if (events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No events found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = events.map(event => `
+        <tr>
+            <td>${formatDateTime(event.timestamp)}</td>
+            <td>
+                <a href="/file/${encodeURIComponent(event.file_path)}" class="text-decoration-none">
+                    ${event.file_path.split('/').pop()}
+                </a>
+            </td>
+            <td>
+                <span class="badge bg-${getActionColor(event.action)}">${event.action}</span>
+            </td>
+            <td>${event.details || '-'}</td>
+            <td>${formatFileSize(event.file_size)}</td>
+            <td>${event.slide_count || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+function formatDateTime(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+}
+
+function formatFileSize(bytes) {
+    if (!bytes) return '-';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function getActionColor(action) {
+    const colors = {
+        'file_created': 'success',
+        'file_modified': 'warning',
+        'file_deleted': 'danger',
+        'initial_scan': 'info'
+    };
+    return colors[action] || 'secondary';
+}
+</script>
+{% endblock %}

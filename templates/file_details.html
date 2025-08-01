@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block title %}File Details - PowerPoint Audit Trail{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('files') }}">Files</a></li>
+                <li class="breadcrumb-item active" aria-current="page">File Details</li>
+            </ol>
+        </nav>
+        
+        <h1 class="mb-4">
+            <i class="fas fa-file-powerpoint me-2"></i>File Details
+        </h1>
+        
+        <div class="alert alert-info">
+            <strong>File:</strong> {{ file_path }}
+        </div>
+    </div>
+</div>
+
+<!-- File Information -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>File Information
+                </h5>
+            </div>
+            <div class="card-body" id="file-info">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="fileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+                            <i class="fas fa-history me-1"></i>Events
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="snapshots-tab" data-bs-toggle="tab" data-bs-target="#snapshots" type="button" role="tab">
+                            <i class="fas fa-camera me-1"></i>Snapshots
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="changes-tab" data-bs-toggle="tab" data-bs-target="#changes" type="button" role="tab">
+                            <i class="fas fa-code-branch me-1"></i>Changes
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="fileTabsContent">
+                    <!-- Events Tab -->
+                    <div class="tab-pane fade show active" id="events" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>Details</th>
+                                        <th>Size</th>
+                                        <th>Slides</th>
+                                        <th>Change Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="events-table">
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Snapshots Tab -->
+                    <div class="tab-pane fade" id="snapshots" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Hash</th>
+                                        <th>Size</th>
+                                        <th>Slides</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="snapshots-table">
+                                    <tr>
+                                        <td colspan="5" class="text-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Changes Tab -->
+                    <div class="tab-pane fade" id="changes" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Old Hash</th>
+                                        <th>New Hash</th>
+                                        <th>Summary</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="changes-table">
+                                    <tr>
+                                        <td colspan="5" class="text-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Snapshot Details Modal -->
+<div class="modal fade" id="snapshotModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Snapshot Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="snapshot-modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Details Modal -->
+<div class="modal fade" id="changeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="change-modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const filePath = "{{ file_path }}";
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadFileDetails();
+});
+
+function loadFileDetails() {
+    fetch(`/api/file/${encodeURIComponent(filePath)}`)
+        .then(response => response.json())
+        .then(data => {
+            updateFileInfo(data);
+            updateEventsTable(data.events);
+            updateSnapshotsTable(data.snapshots);
+            updateChangesTable(data.changes);
+        })
+        .catch(error => {
+            console.error('Error loading file details:', error);
+            document.getElementById('file-info').innerHTML = 
+                '<div class="alert alert-danger">Error loading file details</div>';
+        });
+}
+
+function updateFileInfo(data) {
+    const fileInfo = document.getElementById('file-info');
+    
+    if (data.events.length === 0) {
+        fileInfo.innerHTML = '<div class="alert alert-warning">No events found for this file</div>';
+        return;
+    }
+    
+    const latestEvent = data.events[0];
+    const snapshots = data.snapshots;
+    const changes = data.changes;
+    
+    fileInfo.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>File Path:</strong></td>
+                        <td>${data.file_path}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Current Size:</strong></td>
+                        <td>${formatFileSize(latestEvent.file_size)}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Current Slides:</strong></td>
+                        <td>${latestEvent.slide_count || 0}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Last Modified:</strong></td>
+                        <td>${formatDateTime(latestEvent.timestamp)}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Total Events:</strong></td>
+                        <td><span class="badge bg-primary">${data.events.length}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Snapshots:</strong></td>
+                        <td><span class="badge bg-info">${snapshots.length}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Changes:</strong></td>
+                        <td><span class="badge bg-warning">${changes.length}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>File Type:</strong></td>
+                        <td>${data.file_path.endsWith('.pptx') ? 'PPTX' : 'PPT'}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function updateEventsTable(events) {
+    const tbody = document.getElementById('events-table');
+    
+    if (events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No events found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = events.map(event => `
+        <tr>
+            <td>${formatDateTime(event.timestamp)}</td>
+            <td>
+                <span class="badge bg-${getActionColor(event.action)}">${event.action}</span>
+            </td>
+            <td>${event.details || '-'}</td>
+            <td>${formatFileSize(event.file_size)}</td>
+            <td>${event.slide_count || '-'}</td>
+            <td>
+                ${event.change_type ? `<span class="badge bg-info">${event.change_type}</span>` : '-'}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateSnapshotsTable(snapshots) {
+    const tbody = document.getElementById('snapshots-table');
+    
+    if (snapshots.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No snapshots found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = snapshots.map(snapshot => `
+        <tr>
+            <td>${formatDateTime(snapshot.timestamp)}</td>
+            <td>
+                <code class="small">${snapshot.file_hash.substring(0, 16)}...</code>
+            </td>
+            <td>${formatFileSize(snapshot.file_size)}</td>
+            <td>${snapshot.slide_count}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="showSnapshotDetails('${snapshot.timestamp}')">
+                    <i class="fas fa-eye me-1"></i>Details
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateChangesTable(changes) {
+    const tbody = document.getElementById('changes-table');
+    
+    if (changes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No changes found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = changes.map(change => `
+        <tr>
+            <td>${formatDateTime(change.timestamp)}</td>
+            <td>
+                <code class="small">${change.old_hash ? change.old_hash.substring(0, 16) + '...' : 'N/A'}</code>
+            </td>
+            <td>
+                <code class="small">${change.new_hash ? change.new_hash.substring(0, 16) + '...' : 'N/A'}</code>
+            </td>
+            <td>${change.change_summary}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="showChangeDetails('${change.timestamp}')">
+                    <i class="fas fa-eye me-1"></i>Details
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function showSnapshotDetails(timestamp) {
+    fetch(`/api/file/${encodeURIComponent(filePath)}`)
+        .then(response => response.json())
+        .then(data => {
+            const snapshot = data.snapshots.find(s => s.timestamp === timestamp);
+            if (snapshot) {
+                const modalBody = document.getElementById('snapshot-modal-body');
+                modalBody.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Information</h6>
+                            <table class="table table-sm">
+                                <tr><td>Time:</td><td>${formatDateTime(snapshot.timestamp)}</td></tr>
+                                <tr><td>Size:</td><td>${formatFileSize(snapshot.file_size)}</td></tr>
+                                <tr><td>Slides:</td><td>${snapshot.slide_count}</td></tr>
+                                <tr><td>Hash:</td><td><code>${snapshot.file_hash}</code></td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Metadata</h6>
+                            <pre class="bg-light p-2 small">${JSON.stringify(snapshot.metadata, null, 2)}</pre>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Slide Details</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Slide</th>
+                                            <th>Shapes</th>
+                                            <th>Text Boxes</th>
+                                            <th>Images</th>
+                                            <th>Charts</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${snapshot.slide_details.map(slide => `
+                                            <tr>
+                                                <td>${slide.slide_number}</td>
+                                                <td>${slide.shapes_count}</td>
+                                                <td>${slide.text_boxes}</td>
+                                                <td>${slide.images}</td>
+                                                <td>${slide.charts}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                new bootstrap.Modal(document.getElementById('snapshotModal')).show();
+            }
+        });
+}
+
+function showChangeDetails(timestamp) {
+    fetch(`/api/file/${encodeURIComponent(filePath)}`)
+        .then(response => response.json())
+        .then(data => {
+            const change = data.changes.find(c => c.timestamp === timestamp);
+            if (change) {
+                const modalBody = document.getElementById('change-modal-body');
+                modalBody.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Change Information</h6>
+                            <table class="table table-sm">
+                                <tr><td>Time:</td><td>${formatDateTime(change.timestamp)}</td></tr>
+                                <tr><td>Summary:</td><td>${change.change_summary}</td></tr>
+                                <tr><td>Old Hash:</td><td><code>${change.old_hash || 'N/A'}</code></td></tr>
+                                <tr><td>New Hash:</td><td><code>${change.new_hash || 'N/A'}</code></td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Detailed Changes</h6>
+                            <pre class="bg-light p-2 small">${JSON.stringify(change.detailed_changes, null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+                new bootstrap.Modal(document.getElementById('changeModal')).show();
+            }
+        });
+}
+
+function formatDateTime(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+}
+
+function formatFileSize(bytes) {
+    if (!bytes) return '-';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function getActionColor(action) {
+    const colors = {
+        'file_created': 'success',
+        'file_modified': 'warning',
+        'file_deleted': 'danger',
+        'initial_scan': 'info'
+    };
+    return colors[action] || 'secondary';
+}
+</script>
+{% endblock %}
