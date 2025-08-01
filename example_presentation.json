@@ -1,0 +1,79 @@
+{
+  "title_slide": {
+    "title": "My Custom Presentation",
+    "subtitle": "Data-Driven Insights and Analysis",
+    "author": "Your Name"
+  },
+  "slides": [
+    {
+      "type": "section",
+      "title": "Executive Summary"
+    },
+    {
+      "type": "bullet",
+      "title": "Key Findings",
+      "content": [
+        "Revenue increased by 25% year-over-year",
+        "Customer satisfaction scores improved to 4.8/5",
+        "Market share expanded in three key regions",
+        "Cost reduction initiatives saved $2M annually",
+        "New product line exceeded launch targets"
+      ]
+    },
+    {
+      "type": "two_column",
+      "title": "Strengths vs. Opportunities",
+      "left_content": [
+        "STRENGTHS:",
+        "• Strong brand recognition",
+        "• Experienced team",
+        "• Solid financial position",
+        "• Innovative products",
+        "• Loyal customer base"
+      ],
+      "right_content": [
+        "OPPORTUNITIES:",
+        "• Expand to new markets",
+        "• Digital transformation",
+        "• Strategic partnerships",
+        "• Process automation",
+        "• Sustainability initiatives"
+      ]
+    },
+    {
+      "type": "text",
+      "title": "Market Analysis",
+      "content": "The current market conditions present both challenges and opportunities. Our analysis indicates strong growth potential in emerging markets, with digital channels showing particularly promising results. Customer behavior patterns suggest a shift toward sustainable and tech-enabled solutions, aligning well with our strategic roadmap."
+    },
+    {
+      "type": "section",
+      "title": "Financial Performance"
+    },
+    {
+      "type": "bullet",
+      "title": "Revenue Breakdown",
+      "content": [
+        "Product Sales: $15.2M (68% of total)",
+        "Service Revenue: $4.8M (22% of total)",
+        "Licensing: $2.2M (10% of total)",
+        "Growth Rate: +25% YoY",
+        "Profit Margin: 18.5%"
+      ]
+    },
+    {
+      "type": "section",
+      "title": "Next Steps"
+    },
+    {
+      "type": "bullet",
+      "title": "Action Items",
+      "content": [
+        "Finalize Q1 budget allocation by month-end",
+        "Launch customer feedback initiative",
+        "Begin market expansion feasibility study",
+        "Implement new CRM system",
+        "Schedule quarterly review meetings"
+      ]
+    }
+  ]
+}
